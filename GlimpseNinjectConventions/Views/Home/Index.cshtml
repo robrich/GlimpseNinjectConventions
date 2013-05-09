@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<h3>Glimpse / Ninject.Extensions.Conventions</h3>
+<p>This project reproduces a collision between Ninject.Extensions.Conventions and Glimpse.</p>
+<p>Steps to reproduce the issue:</p>
+<ol>
+    <li>Create a new MVC4 Project</li>
+    <li>Manage NuGet Packages</li>
+    <li>Add Glimpse.MVC4</li>
+    <li>Add Ninject.MVC3</li>
+    <li>Add Ninject.Extensions.Conventions</li>
+    <li>Modify App_Start/NinjectWebCommon.cs RegisterServices() method:<br />
+<pre>
+    string path = new Uri(Path.GetDirectoryName(typeof(NinjectWebCommon).Assembly.CodeBase)).LocalPath;
+    kernel.Bind(x => x
+        .FromAssembliesInPath(path)
+        .SelectAllClasses()
+        .BindDefaultInterface()
+        .Configure(b => b.InRequestScope())
+    );
+</pre>
+    </li>
+    <li>Run project</li>
+    <li>Visit <a href="~/Glimpse.axd">~/Glimpse.axd</a> and enable glimpse</li>
+    <li>Return to the home page</li>
+    <li>Note that there is no &quot;Eye&quot; icon, and in View Source, no evidence of Glimpse</li>
+    <li>Comment out a few lines in App_Start/NinjectWebCommon.cs RegisterServices() method (which also disables Ninject's auto-discovery):</li>
+<pre>
+    string path = new Uri(Path.GetDirectoryName(typeof(NinjectWebCommon).Assembly.CodeBase)).LocalPath;
+    kernel.Bind(x => x
+        .FromAssembliesInPath(path)
+        .SelectAllClasses()
+        //.BindDefaultInterface()
+        //.Configure(b => b.InRequestScope())
+    );
+</pre>
+    <li>Run project</li>
+    <li>Note the Glimpse &quot;Eye&quot; icon is now present</li>
+</ol>
